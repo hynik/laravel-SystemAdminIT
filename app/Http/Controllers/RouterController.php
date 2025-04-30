@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Router;
+use App\Services\MikrotikService;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -11,6 +12,13 @@ class RouterController extends Controller
     /**
      * Display a listing of the resource.
      */
+    protected $mikrotikService;
+
+    public function __construct(MikrotikService $mikrotikService)
+    {
+        $this->mikrotikService = $mikrotikService;
+    }
+    
     public function index()
     {
         $routers = Router::all();
@@ -89,4 +97,30 @@ class RouterController extends Controller
         $router->delete();
         return redirect()->route('routers.index')->with('success', 'Router berhasil dihapus.');
     }
+
+    public function showInterfaces($id, MikrotikService $api)
+    {
+        $router = Router::findOrFail($request->router_id);
+        $interfaces = $this->mikrotikService->getInterfaces($router);
+    
+        return response()->json($interfaces);
+    }
+
+    public function getTraffic(Request $request, MikrotikService $api)
+    {
+        $router = Router::findOrFail($request->router_id);
+        $interface = $request->interface;
+
+        $traffic = $this->mikrotikService->getInterfaceTraffic($router, $interface);
+
+        return response()->json($traffic);
+    }
+
+
+    public function showTraffic($id, $interface)
+    {
+        $router = Router::findOrFail($id);
+        return view('routers.traffic', compact('router', 'interface'));
+    }
+
 }

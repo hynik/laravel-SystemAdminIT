@@ -147,6 +147,14 @@ Route::group(['middleware' => ['auth', 'role:staff-it']], function () {
         'destroy' => 'routers.destroy',
         'show' => 'routers.show',
     ]);
+
+    // Tambahan: monitoring trafik realtime (halaman)
+    Route::get('routers/{id}/traffic/{interface}', [App\Http\Controllers\RouterController::class, 'showTraffic'])
+        ->name('routers.traffic.show');
+
+    // Tambahan: endpoint AJAX polling trafik
+    Route::get('routers/traffic', [App\Http\Controllers\RouterController::class, 'getTraffic'])
+        ->name('routers.traffic');
 });
 
 // Semua pengguna (staff IT dan user biasa bisa lihat)
